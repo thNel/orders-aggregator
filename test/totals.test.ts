@@ -19,6 +19,22 @@ describe("GET /customers/:id/daily-totals", () => {
     ]);
   });
 
+  it("учитывает переход на летнее время при группировке по локальным дням", async () => {
+    ctx.api.customers.set("c_1", "Europe/Berlin");
+    // В 22:30 UTC до перевода часов в Берлине 23:30, после перевода — 00:30 следующего дня.
+    await postWebhook(ctx.app, apiOrder({ amount: 100, createdAt: "2026-03-28T22:30:00Z" }));
+    await postWebhook(ctx.app, apiOrder({ amount: 250, createdAt: "2026-03-29T22:30:00Z" }));
+
+    const res = await dailyTotals(ctx.app, "c_1", "2026-03-28", "2026-03-30");
+
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual([
+      { date: "2026-03-28", total: 100 },
+      { date: "2026-03-29", total: 0 },
+      { date: "2026-03-30", total: 250 },
+    ]);
+  });
+
   it("не учитывает pending и refunded", async () => {
     await postWebhook(ctx.app, apiOrder({ amount: 500 }));
     await postWebhook(ctx.app, apiOrder({ amount: 700, status: "pending" }));
