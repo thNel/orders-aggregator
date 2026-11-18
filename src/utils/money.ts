@@ -13,7 +13,13 @@ export function parseRub(raw: unknown): number {
 
 /** Рубли → копейки. Доли копейки отбрасываются: деньги клиенту не досчитываем. */
 export function toKop(rub: number): number {
-  return Math.floor(rub * 100);
+  if (!Number.isFinite(rub)) throw new RangeError("Invalid amount");
+
+  const kop = Math.trunc(Number(`${rub}e2`));
+
+  if (!Number.isSafeInteger(kop)) throw new RangeError("Amount is too large");
+
+  return kop;
 }
 
 /** Копейки → рубли для ответа API. */
