@@ -1,0 +1,21 @@
+# Dependencies, build output, and test reports
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+*.log
+
+# Local environment
+.env
+.env.*
+!.env.example
+
+# IDE and OS files
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Supplied Docker images
+/orders-mock-*.tar.gz
